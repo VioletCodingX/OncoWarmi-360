@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OncoWarmi 360 — Diagrama de Actividades del Index</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: #0f0f1a;
+    color: #e8e8f0;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── HEADER ── */
+  .header {
+    text-align: center;
+    padding: 48px 24px 32px;
+  }
+  .header-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(124,58,237,0.15);
+    border: 1px solid rgba(124,58,237,0.4);
+    border-radius: 100px;
+    padding: 6px 16px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #a78bfa;
+    margin-bottom: 20px;
+  }
+  .header h1 {
+    font-size: clamp(22px, 4vw, 38px);
+    font-weight: 800;
+    letter-spacing: -1.5px;
+    line-height: 1.1;
+    background: linear-gradient(135deg, #ffffff 0%, #c4b5fd 50%, #818cf8 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 12px;
+  }
+  .header p {
+    font-size: 14px;
+    color: #6b7280;
+    max-width: 560px;
+    margin: 0 auto;
+    line-height: 1.6;
+  }
+
+  /* ── CANVAS ── */
+  .canvas {
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 0 24px 80px;
+  }
+
+  /* ── SECTION LABEL ── */
+  .section-label {
+    text-align: center;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #4b5563;
+    margin-bottom: 12px;
+  }
+
+  /* ── NODE BASE ── */
+  .node {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    border-radius: 14px;
+    padding: 14px 20px;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.4;
+    transition: transform 0.2s, box-shadow 0.2s;
+    cursor: default;
+  }
+  .node:hover { transform: translateY(-2px); }
+  .node .icon { font-size: 20px; margin-bottom: 6px; }
+  .node .label { font-size: 12px; font-weight: 700; letter-spacing: 0.3px; }
+  .node .sublabel { font-size: 10.5px; font-weight: 400; opacity: 0.75; margin-top: 2px; }
+
+  /* ── NODE VARIANTS ── */
+  .node-start {
+    width: 220px;
+    background: linear-gradient(135deg, #4c1d95, #6d28d9);
+    border: 1.5px solid #7c3aed;
+    box-shadow: 0 0 0 4px rgba(124,58,237,0.12), 0 8px 24px rgba(109,40,217,0.35);
+    border-radius: 100px;
+    color: white;
+  }
+  .node-page {
+    background: rgba(30,27,75,0.8);
+    border: 1.5px solid rgba(99,102,241,0.5);
+    color: #c7d2fe;
+    box-shadow: 0 4px 20px rgba(99,102,241,0.15);
+  }
+  .node-ai {
+    background: linear-gradient(135deg, rgba(245,158,11,0.12), rgba(251,191,36,0.08));
+    border: 1.5px solid rgba(245,158,11,0.5);
+    color: #fcd34d;
+    box-shadow: 0 4px 20px rgba(245,158,11,0.12);
+  }
+  .node-pink {
+    background: rgba(236,72,153,0.1);
+    border: 1.5px solid rgba(236,72,153,0.45);
+    color: #f9a8d4;
+  }
+  .node-orange {
+    background: rgba(234,88,12,0.1);
+    border: 1.5px solid rgba(234,88,12,0.45);
+    color: #fdba74;
+  }
+  .node-green {
+    background: rgba(16,185,129,0.1);
+    border: 1.5px solid rgba(16,185,129,0.4);
+    color: #6ee7b7;
+  }
+  .node-teal {
+    background: rgba(8,145,178,0.1);
+    border: 1.5px solid rgba(8,145,178,0.45);
+    color: #67e8f9;
+  }
+  .node-red {
+    background: rgba(239,68,68,0.1);
+    border: 1.5px solid rgba(239,68,68,0.4);
+    color: #fca5a5;
+  }
+  .node-end {
+    width: 220px;
+    background: linear-gradient(135deg, #064e3b, #065f46);
+    border: 1.5px solid #10b981;
+    color: #6ee7b7;
+    box-shadow: 0 0 0 4px rgba(16,185,129,0.12), 0 8px 24px rgba(16,185,129,0.2);
+    border-radius: 100px;
+  }
+
+  /* ── STEP NUM ── */
+  .step-num {
+    position: absolute;
+    top: -10px;
+    left: -10px;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: rgba(124,58,237,0.25);
+    border: 1.5px solid rgba(124,58,237,0.5);
+    color: #a78bfa;
+    font-size: 10px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* ── ARROWS ── */
+  .v-conn {
+    width: 2px;
+    background: linear-gradient(180deg, rgba(99,102,241,0.4), rgba(99,102,241,0.2));
+  }
+  .v-arrow-head {
+    width: 0;
+    height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 7px solid rgba(99,102,241,0.5);
+  }
+  .h-line {
+    height: 2px;
+    background: rgba(99,102,241,0.3);
+  }
+
+  /* ── MODULE GRID ── */
+  .module-grid {
+    display: grid;
+    gap: 12px;
+  }
+  .grid-2 { grid-template-columns: 1fr 1fr; }
+  .grid-3 { grid-template-columns: 1fr 1fr 1fr; }
+  .grid-4 { grid-template-columns: 1fr 1fr 1fr 1fr; }
+
+  /* ── SECTION BOX ── */
+  .section-box {
+    border: 1px solid rgba(99,102,241,0.15);
+    border-radius: 16px;
+    padding: 18px;
+    background: rgba(15,15,30,0.5);
+    position: relative;
+  }
+  .section-box-title {
+    position: absolute;
+    top: -11px;
+    left: 16px;
+    background: #0f0f1a;
+    padding: 0 8px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: #6366f1;
+  }
+
+  /* ── BADGE ── */
+  .badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 100px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .badge-new {
+    background: rgba(236,72,153,0.2);
+    border: 1px solid rgba(236,72,153,0.4);
+    color: #f9a8d4;
+  }
+  .badge-ai {
+    background: rgba(245,158,11,0.15);
+    border: 1px solid rgba(245,158,11,0.4);
+    color: #fcd34d;
+  }
+
+  /* ── SUB-NODES ── */
+  .sub-node {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 11px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 600;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.07);
+    color: #9ca3af;
+  }
+  .sub-node .s-icon { font-size: 14px; flex-shrink: 0; }
+
+  /* ── LEGEND ── */
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    justify-content: center;
+    margin-top: 48px;
+    padding: 16px 24px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 12px;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 11px;
+    color: #6b7280;
+    font-weight: 500;
+  }
+  .legend-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 3px;
+    flex-shrink: 0;
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-badge">📱 Arquitectura de Actividades</div>
+  <h1>OncoWarmi 360 — Index(4)</h1>
+  <p>Diagrama de flujo de módulos, páginas e interacciones del prototipo web · Equipo Yura Toledo · INEN Lima</p>
+</div>
+
+<div class="canvas">
+
+  <!-- ══ 0. ENTRADA ══ -->
+  <div style="display:flex;flex-direction:column;align-items:center;gap:0;">
+
+    <!-- START -->
+    <div class="node node-start" style="position:relative;">
+      <div class="icon">🌸</div>
+      <div class="label">Paciente accede a OncoWarmi 360</div>
+      <div class="sublabel">Web · Mobile · ES / QU / AY</div>
+    </div>
+
+    <div style="height:28px;display:flex;flex-direction:column;align-items:center;">
+      <div class="v-conn" style="flex:1;"></div>
+      <div class="v-arrow-head"></div>
+    </div>
+
+    <!-- ══ 1. INICIO ══ -->
+    <div style="width:100%;max-width:860px;position:relative;">
+      <div class="step-num">1</div>
+      <div class="section-box">
+        <div class="section-box-title">INICIO · Dashboard de Paciente</div>
+        <div style="display:flex;gap:12px;align-items:stretch;flex-wrap:wrap;">
+
+          <!-- Hero card -->
+          <div class="node node-page" style="flex:1.2;min-width:180px;justify-content:flex-start;padding:14px 16px;">
+            <div class="icon">🏠</div>
+            <div class="label">Hero de bienvenida</div>
+            <div class="sublabel">Nombre · Fecha cita · Módulo INEN<br>Referencia aceptada</div>
+          </div>
+
+          <!-- Stats grid -->
+          <div style="flex:1;display:flex;flex-direction:column;gap:8px;min-width:160px;">
+            <div style="font-size:10px;color:#6b7280;font-weight:600;text-transform:uppercase;letter-spacing:1px;">4 MÉTRICAS</div>
+            <div class="sub-node"><span class="s-icon">📍</span> Etapa diagnóstica (3/9)</div>
+            <div class="sub-node"><span class="s-icon">⏱</span> Días en proceso</div>
+            <div class="sub-node"><span class="s-icon">📅</span> Próxima cita</div>
+            <div class="sub-node"><span class="s-icon">✈️</span> Viajes evitados · Ahorro S/</div>
+          </div>
+
+          <!-- Alertas -->
+          <div style="flex:1;display:flex;flex-direction:column;gap:8px;min-width:160px;">
+            <div style="font-size:10px;color:#6b7280;font-weight:600;text-transform:uppercase;letter-spacing:1px;">ALERTAS ACTIVAS</div>
+            <div class="sub-node" style="border-color:rgba(245,158,11,0.3);color:#fcd34d;"><span class="s-icon">⚠️</span> ¿Viajas desde provincia hoy?</div>
+            <div class="sub-node" style="border-color:rgba(8,145,178,0.3);color:#67e8f9;"><span class="s-icon">📋</span> Documentos para cita</div>
+            <div class="sub-node" style="border-color:rgba(236,72,153,0.3);color:#f9a8d4;"><span class="s-icon">🧠</span> ¿Sientes ansiedad?</div>
+          </div>
+
+          <!-- Mini journey -->
+          <div style="flex:1;display:flex;flex-direction:column;gap:8px;min-width:150px;">
+            <div style="font-size:10px;color:#6b7280;font-weight:600;text-transform:uppercase;letter-spacing:1px;">RECORRIDO RÁPIDO</div>
+            <div class="sub-node" style="border-color:rgba(16,185,129,0.3);color:#6ee7b7;"><span class="s-icon">✓</span> Referencia REFCON</div>
+            <div class="sub-node" style="border-color:rgba(16,185,129,0.3);color:#6ee7b7;"><span class="s-icon">✓</span> Registro en INEN</div>
+            <div class="sub-node" style="border-color:rgba(99,102,241,0.4);color:#a5b4fc;"><span class="s-icon">▶</span> Apertura HC · 18 jun</div>
+            <div class="sub-node"><span class="s-icon">○</span> Consulta especialista</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="height:28px;display:flex;flex-direction:column;align-items:center;">
+      <div class="v-conn" style="flex:1;"></div>
+      <div class="v-arrow-head"></div>
+    </div>
+
+    <!-- ══ 2. NAVEGACIÓN PRINCIPAL → BIFURCACIÓN ══ -->
+    <div style="width:100%;max-width:860px;position:relative;">
+      <div class="step-num">2</div>
+      <div class="section-box">
+        <div class="section-box-title">NAVEGACIÓN · Sidebar / Bottom Nav / "Más"</div>
+        <div style="font-size:12px;color:#6b7280;margin-bottom:12px;text-align:center;">El usuario accede a cualquiera de las 11 secciones disponibles</div>
+        <div class="module-grid grid-4" style="gap:10px;">
+
+          <div class="node node-page" style="padding:12px;min-height:70px;">
+            <div style="font-size:17px;margin-bottom:4px;">🗺️</div>
+            <div class="label" style="font-size:11px;">Mi Ruta Diagnóstica</div>
+          </div>
+          <div class="node node-pink" style="padding:12px;min-height:70px;position:relative;">
+            <div class="badge badge-new" style="position:absolute;top:5px;right:5px;font-size:8px;padding:1px 5px;">NUEVO</div>
+            <div style="font-size:17px;margin-bottom:4px;">🧠</div>
+            <div class="label" style="font-size:11px;">Ruta Psicológica</div>
+          </div>
+          <div class="node node-orange" style="padding:12px;min-height:70px;position:relative;">
+            <div class="badge badge-new" style="position:absolute;top:5px;right:5px;font-size:8px;padding:1px 5px;">NUEVO</div>
+            <div style="font-size:17px;margin-bottom:4px;">💊</div>
+            <div class="label" style="font-size:11px;">Manejo del Dolor</div>
+          </div>
+          <div class="node node-teal" style="padding:12px;min-height:70px;">
+            <div style="font-size:17px;margin-bottom:4px;">💬</div>
+            <div class="label" style="font-size:11px;">WhatsApp OncoWarmi</div>
+          </div>
+          <div class="node node-page" style="padding:12px;min-height:70px;">
+            <div style="font-size:17px;margin-bottom:4px;">✅</div>
+            <div class="label" style="font-size:11px;">¿Necesitas viajar hoy?</div>
+          </div>
+          <div class="node node-page" style="padding:12px;min-height:70px;">
+            <div style="font-size:17px;margin-bottom:4px;">🔤</div>
+            <div class="label" style="font-size:11px;">Traductor Médico</div>
+          </div>
+          <div class="node node-page" style="padding:12px;min-height:70px;">
+            <div style="font-size:17px;margin-bottom:4px;">📞</div>
+            <div class="label" style="font-size:11px;">WarmiVoz</div>
+          </div>
+          <div class="node node-page" style="padding:12px;min-height:70px;">
+            <div style="font-size:17px;margin-bottom:4px;">👨‍👩‍👧</div>
+            <div class="label" style="font-size:11px;">Modo Cuidador</div>
+          </div>
+          <div class="node node-ai" style="padding:12px;min-height:70px;">
+            <div style="font-size:17px;margin-bottom:4px;">🗺️</div>
+            <div class="label" style="font-size:11px;">Mapa INEN</div>
+          </div>
+          <div class="node node-ai" style="padding:12px;min-height:70px;">
+            <div style="font-size:17px;margin-bottom:4px;">📊</div>
+            <div class="label" style="font-size:11px;">Panel · Semáforo IA</div>
+          </div>
+          <div class="node node-ai" style="padding:12px;min-height:70px;">
+            <div style="font-size:17px;margin-bottom:4px;">📋</div>
+            <div class="label" style="font-size:11px;">Briefing al Médico</div>
+          </div>
+          <div class="node" style="padding:12px;min-height:70px;background:rgba(139,92,246,0.08);border:1.5px solid rgba(139,92,246,0.3);color:#c4b5fd;">
+            <div style="font-size:17px;margin-bottom:4px;">🌐</div>
+            <div class="label" style="font-size:11px;">Selector de idioma<br>ES / QU / AY</div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- Flechas hacia módulos principales -->
+    <div style="height:28px;display:flex;flex-direction:column;align-items:center;">
+      <div class="v-conn" style="flex:1;"></div>
+      <div class="v-arrow-head"></div>
+    </div>
+
+    <!-- ══ 3. MÓDULOS DETALLE ══ -->
+    <div style="display:flex;gap:16px;width:100%;max-width:860px;align-items:flex-start;flex-wrap:wrap;">
+
+      <!-- Col A: Ruta + Checklist -->
+      <div style="flex:1;min-width:220px;display:flex;flex-direction:column;gap:16px;">
+
+        <!-- 3A. MI RUTA -->
+        <div style="position:relative;">
+          <div class="step-num" style="top:-10px;left:-10px;">3A</div>
+          <div class="section-box" style="border-color:rgba(99,102,241,0.25);">
+            <div class="section-box-title" style="color:#818cf8;">MI RUTA DIAGNÓSTICA · 9 Pasos</div>
+            <div style="display:flex;flex-direction:column;gap:6px;">
+              <div class="sub-node" style="border-color:rgba(16,185,129,0.3);color:#6ee7b7;"><span class="s-icon">✓</span>1. Referencia REFCON</div>
+              <div class="sub-node" style="border-color:rgba(16,185,129,0.3);color:#6ee7b7;"><span class="s-icon">✓</span>2. Registro SISINEN</div>
+              <div class="sub-node" style="border-color:rgba(99,102,241,0.4);color:#a5b4fc;"><span class="s-icon">▶</span>3. Apertura Historia Clínica</div>
+              <div class="sub-node"><span class="s-icon">4</span> Triaje oncológico</div>
+              <div class="sub-node"><span class="s-icon">5</span> Exámenes de laboratorio</div>
+              <div class="sub-node"><span class="s-icon">6</span> Imágenes diagnósticas</div>
+              <div class="sub-node"><span class="s-icon">7</span> Biopsia (si aplica)</div>
+              <div class="sub-node"><span class="s-icon">8</span> Diagnóstico final · Junta</div>
+              <div class="sub-node"><span class="s-icon">9</span> Plan de tratamiento · Alta</div>
+              <div style="display:flex;justify-content:center;margin-top:4px;">
+                <div style="background:rgba(99,102,241,0.15);border:1px solid rgba(99,102,241,0.3);border-radius:20px;padding:4px 12px;font-size:10px;font-weight:700;color:#818cf8;">Barra de progreso 2/9</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3B. CHECKLIST VIAJE -->
+        <div style="position:relative;">
+          <div class="step-num" style="top:-10px;left:-10px;">3B</div>
+          <div class="section-box" style="border-color:rgba(99,102,241,0.2);">
+            <div class="section-box-title" style="color:#818cf8;">¿NECESITAS VIAJAR HOY?</div>
+            <div style="display:flex;flex-direction:column;gap:6px;">
+              <div class="sub-node" style="border-color:rgba(109,40,217,0.35);color:#c4b5fd;"><span class="s-icon">📌</span>Estado del día (banner IA)</div>
+              <div class="sub-node"><span class="s-icon">☑</span>5 preguntas de verificación</div>
+              <div class="sub-node" style="border-color:rgba(16,185,129,0.3);color:#6ee7b7;"><span class="s-icon">💰</span>Viajes evitados · Ahorro S/</div>
+              <div style="display:flex;justify-content:center;margin-top:4px;">
+                <div style="background:rgba(234,88,12,0.1);border:1px solid rgba(234,88,12,0.35);border-radius:20px;padding:4px 12px;font-size:10px;font-weight:700;color:#fdba74;">→ 🚫 No viajar / ✅ Sí venir</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Col B: Psicológica + Dolor -->
+      <div style="flex:1.3;min-width:240px;display:flex;flex-direction:column;gap:16px;">
+
+        <!-- 3C. PSICOLOGÍA -->
+        <div style="position:relative;">
+          <div class="step-num" style="top:-10px;left:-10px;">3C</div>
+          <div class="section-box" style="border-color:rgba(236,72,153,0.25);">
+            <div class="section-box-title" style="color:#f472b6;">RUTA PSICOLÓGICA · <span class="badge badge-new">NUEVO</span></div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px;">
+
+              <!-- Tab 1: Evaluación GAD -->
+              <div class="node node-pink" style="padding:10px;align-items:flex-start;text-align:left;">
+                <div style="font-size:13px;margin-bottom:4px;">📝</div>
+                <div class="label" style="font-size:10.5px;">Evaluación GAD</div>
+                <div class="sublabel" style="font-size:9.5px;">4 preguntas ansiedad · Resultado → nivel</div>
+              </div>
+              <!-- Tab 2: Apoyo Warmi -->
+              <div class="node node-pink" style="padding:10px;align-items:flex-start;text-align:left;">
+                <div style="font-size:13px;margin-bottom:4px;">💜</div>
+                <div class="label" style="font-size:10.5px;">Chat Warmi Psicológica</div>
+                <div class="sublabel" style="font-size:9.5px;">Claude API · IA psicooncológica</div>
+              </div>
+              <!-- Tab 3: Técnicas -->
+              <div class="node node-pink" style="padding:10px;align-items:flex-start;text-align:left;">
+                <div style="font-size:13px;margin-bottom:4px;">🌬️</div>
+                <div class="label" style="font-size:10.5px;">Técnicas de manejo</div>
+                <div class="sublabel" style="font-size:9.5px;">Respiración 4-7-8 · Pensamiento calma IA</div>
+              </div>
+              <!-- Tab 4: Recursos -->
+              <div class="node node-pink" style="padding:10px;align-items:flex-start;text-align:left;">
+                <div style="font-size:13px;margin-bottom:4px;">🏥</div>
+                <div class="label" style="font-size:10.5px;">Recursos INEN</div>
+                <div class="sublabel" style="font-size:9.5px;">Psicología · Grupo apoyo · Línea 113</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3D. MANEJO DEL DOLOR -->
+        <div style="position:relative;">
+          <div class="step-num" style="top:-10px;left:-10px;">3D</div>
+          <div class="section-box" style="border-color:rgba(234,88,12,0.25);">
+            <div class="section-box-title" style="color:#fb923c;">MANEJO DEL DOLOR · <span class="badge badge-new">NUEVO</span></div>
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:4px;">
+              <div class="node node-orange" style="padding:10px;align-items:flex-start;text-align:left;">
+                <div style="font-size:13px;margin-bottom:4px;">📊</div>
+                <div class="label" style="font-size:10.5px;">Escala EVA</div>
+                <div class="sublabel" style="font-size:9.5px;">Slider 0-10 · Localización · Diario</div>
+              </div>
+              <div class="node node-orange" style="padding:10px;align-items:flex-start;text-align:left;">
+                <div style="font-size:13px;margin-bottom:4px;">📖</div>
+                <div class="label" style="font-size:10.5px;">Mi Diario</div>
+                <div class="sublabel" style="font-size:9.5px;">Historial EVA · Promedio/Máximo</div>
+              </div>
+              <div class="node node-ai" style="padding:10px;align-items:flex-start;text-align:left;">
+                <div style="font-size:13px;margin-bottom:4px;">🤖</div>
+                <div class="label" style="font-size:10.5px;">Orientación IA</div>
+                <div class="sublabel" style="font-size:9.5px;">Claude API · Recomendaciones</div>
+              </div>
+            </div>
+            <div style="margin-top:8px;">
+              <div class="sub-node" style="border-color:rgba(239,68,68,0.35);color:#fca5a5;"><span class="s-icon">🚨</span>EVA 8–10 → Alerta urgencias INEN / 113</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Col C: Chat + Herramientas -->
+      <div style="flex:1;min-width:210px;display:flex;flex-direction:column;gap:16px;">
+
+        <!-- 3E. WHATSAPP WARMI -->
+        <div style="position:relative;">
+          <div class="step-num" style="top:-10px;left:-10px;">3E</div>
+          <div class="section-box" style="border-color:rgba(8,145,178,0.25);">
+            <div class="section-box-title" style="color:#22d3ee;">WhatsApp OncoWarmi</div>
+            <div style="display:flex;flex-direction:column;gap:6px;">
+              <div class="sub-node" style="border-color:rgba(16,185,129,0.35);color:#6ee7b7;"><span class="s-icon">🌸</span>Mensajes de bienvenida</div>
+              <div class="sub-node"><span class="s-icon">💬</span>Input libre + Claude API</div>
+              <div class="sub-node"><span class="s-icon">⚡</span>Respuestas rápidas (4 opciones)</div>
+              <div style="font-size:9.5px;color:#4b5563;text-align:center;margin-top:4px;">🇵🇪 ES · 🌿 QU · 🏔️ AY</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3F. TRADUCTOR -->
+        <div style="position:relative;">
+          <div class="step-num" style="top:-10px;left:-10px;">3F</div>
+          <div class="section-box" style="border-color:rgba(99,102,241,0.2);">
+            <div class="section-box-title" style="color:#818cf8;">TRADUCTOR MÉDICO</div>
+            <div style="display:flex;flex-direction:column;gap:6px;">
+              <div class="sub-node"><span class="s-icon">🔤</span>Input término médico</div>
+              <div class="sub-node" style="border-color:rgba(245,158,11,0.3);color:#fcd34d;"><span class="s-icon">✨</span>Claude API → lenguaje claro</div>
+              <div class="sub-node"><span class="s-icon">📚</span>20 términos frecuentes (Glosario)</div>
+              <div class="sub-node"><span class="s-icon">🏷️</span>Filtros: Exámenes / Proc. / Sistema</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3G. WARMIVOZ -->
+        <div style="position:relative;">
+          <div class="step-num" style="top:-10px;left:-10px;">3G</div>
+          <div class="section-box" style="border-color:rgba(99,102,241,0.2);">
+            <div class="section-box-title" style="color:#818cf8;">WARMIVOZ · Llamada</div>
+            <div style="display:flex;flex-direction:column;gap:6px;">
+              <div class="sub-node"><span class="s-icon">📞</span>Consulta gratuita · Sin internet</div>
+              <div class="sub-node"><span class="s-icon">🌐</span>Selector idioma: ES / QU / AY</div>
+              <div class="sub-node" style="border-color:rgba(245,158,11,0.3);color:#fcd34d;"><span class="s-icon">🤖</span>Claude API (voz simulada)</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <div style="height:28px;display:flex;flex-direction:column;align-items:center;">
+      <div class="v-conn" style="flex:1;"></div>
+      <div class="v-arrow-head"></div>
+    </div>
+
+    <!-- ══ 4. MÓDULOS INSTITUCIONALES + CUIDADOR ══ -->
+    <div style="width:100%;max-width:860px;position:relative;">
+      <div class="step-num">4</div>
+      <div class="section-box" style="border-color:rgba(245,158,11,0.2);">
+        <div class="section-box-title" style="color:#f59e0b;">INEN · PROFESIONALES &amp; FAMILIA</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">
+
+          <!-- Mapa INEN -->
+          <div class="node node-ai" style="padding:14px;align-items:flex-start;text-align:left;">
+            <div style="font-size:18px;margin-bottom:6px;">🗺️</div>
+            <div class="label">Mapa INEN</div>
+            <div class="sublabel" style="font-size:10px;margin-top:6px;display:flex;flex-direction:column;gap:3px;">
+              <div>▸ SVG planta baja interactiva</div>
+              <div>▸ GPS simulado (4 pasos)</div>
+              <div>▸ Puntos clave: Admisión, Lab, Psico</div>
+              <div>▸ Ruta animada (flechas)</div>
+            </div>
+          </div>
+
+          <!-- Semáforo IA / Dashboard -->
+          <div class="node node-ai" style="padding:14px;align-items:flex-start;text-align:left;">
+            <div style="font-size:18px;margin-bottom:6px;">📊</div>
+            <div class="label">Panel · Semáforo IA</div>
+            <div class="sublabel" style="font-size:10px;margin-top:6px;display:flex;flex-direction:column;gap:3px;">
+              <div>▸ Tabla de pacientes INEN</div>
+              <div>▸ Clasificación 🔴 Rojo / ⚠️ Amarillo / ✓ Verde</div>
+              <div>▸ Análisis → Claude API</div>
+              <div>▸ Vista médico-institucional</div>
+            </div>
+          </div>
+
+          <!-- Briefing + Cuidador -->
+          <div style="display:flex;flex-direction:column;gap:10px;">
+            <div class="node node-ai" style="padding:12px;align-items:flex-start;text-align:left;flex:1;">
+              <div style="font-size:16px;margin-bottom:4px;">📋</div>
+              <div class="label" style="font-size:11px;">Briefing al Médico</div>
+              <div class="sublabel" style="font-size:9.5px;margin-top:4px;">
+                Selector paciente · Tipo briefing<br>
+                Claude API → Resumen pre-cita
+              </div>
+            </div>
+            <div class="node" style="padding:12px;align-items:flex-start;text-align:left;flex:1;background:rgba(139,92,246,0.08);border:1.5px solid rgba(139,92,246,0.3);color:#c4b5fd;">
+              <div style="font-size:16px;margin-bottom:4px;">👨‍👩‍👧</div>
+              <div class="label" style="font-size:11px;">Modo Cuidador</div>
+              <div class="sublabel" style="font-size:9.5px;margin-top:4px;">
+                Familiar registrado · Alertas<br>
+                Mismas notificaciones Warmi
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <div style="height:28px;display:flex;flex-direction:column;align-items:center;">
+      <div class="v-conn" style="flex:1;"></div>
+      <div class="v-arrow-head"></div>
+    </div>
+
+    <!-- ══ 5. CAPA IA (CLAUDE API) ══ -->
+    <div style="width:100%;max-width:860px;position:relative;">
+      <div class="step-num">5</div>
+      <div class="section-box" style="border-color:rgba(245,158,11,0.3);background:rgba(245,158,11,0.04);">
+        <div class="section-box-title" style="color:#f59e0b;">CAPA DE IA · Claude API — Motor Transversal</div>
+        <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:9px;">
+          <div style="text-align:center;padding:10px 6px;">
+            <div style="font-size:20px;margin-bottom:5px;">💬</div>
+            <div style="font-size:10px;font-weight:700;color:#fcd34d;">Chat Warmi</div>
+            <div style="font-size:9px;color:#6b7280;margin-top:2px;">Consultas 24/7</div>
+          </div>
+          <div style="text-align:center;padding:10px 6px;">
+            <div style="font-size:20px;margin-bottom:5px;">🧠</div>
+            <div style="font-size:10px;font-weight:700;color:#fcd34d;">Psicológica IA</div>
+            <div style="font-size:9px;color:#6b7280;margin-top:2px;">Psicooncología</div>
+          </div>
+          <div style="text-align:center;padding:10px 6px;">
+            <div style="font-size:20px;margin-bottom:5px;">🔤</div>
+            <div style="font-size:10px;font-weight:700;color:#fcd34d;">Traductor Médico</div>
+            <div style="font-size:9px;color:#6b7280;margin-top:2px;">Lenguaje claro</div>
+          </div>
+          <div style="text-align:center;padding:10px 6px;">
+            <div style="font-size:20px;margin-bottom:5px;">📊</div>
+            <div style="font-size:10px;font-weight:700;color:#fcd34d;">Semáforo IA</div>
+            <div style="font-size:9px;color:#6b7280;margin-top:2px;">Análisis de riesgo</div>
+          </div>
+          <div style="text-align:center;padding:10px 6px;">
+            <div style="font-size:20px;margin-bottom:5px;">📋</div>
+            <div style="font-size:10px;font-weight:700;color:#fcd34d;">Briefing Médico</div>
+            <div style="font-size:9px;color:#6b7280;margin-top:2px;">Resumen pre-cita</div>
+          </div>
+        </div>
+        <div style="text-align:center;margin-top:8px;font-size:10px;color:#4b5563;">
+          Todos los módulos IA comparten el mismo motor · Respuestas en ES / QU / AY
+        </div>
+      </div>
+    </div>
+
+    <div style="height:28px;display:flex;flex-direction:column;align-items:center;">
+      <div class="v-conn" style="flex:1;"></div>
+      <div class="v-arrow-head"></div>
+    </div>
+
+    <!-- ══ 6. IDIOMA TRANSVERSAL ══ -->
+    <div style="width:100%;max-width:860px;position:relative;">
+      <div class="step-num">6</div>
+      <div class="section-box" style="border-color:rgba(139,92,246,0.25);">
+        <div class="section-box-title" style="color:#a78bfa;">SISTEMA DE IDIOMAS · Multilingual i18n</div>
+        <div style="display:flex;gap:12px;justify-content:center;align-items:center;flex-wrap:wrap;padding:6px 0;">
+          <div style="text-align:center;padding:10px 20px;background:rgba(99,102,241,0.1);border:1.5px solid rgba(99,102,241,0.3);border-radius:12px;">
+            <div style="font-size:22px;">🇵🇪</div>
+            <div style="font-size:11px;font-weight:700;color:#a5b4fc;margin-top:4px;">Español</div>
+            <div style="font-size:9px;color:#4b5563;">Idioma base</div>
+          </div>
+          <div style="font-size:20px;color:#374151;">⇄</div>
+          <div style="text-align:center;padding:10px 20px;background:rgba(16,185,129,0.08);border:1.5px solid rgba(16,185,129,0.3);border-radius:12px;">
+            <div style="font-size:22px;">🌿</div>
+            <div style="font-size:11px;font-weight:700;color:#6ee7b7;margin-top:4px;">Quechua</div>
+            <div style="font-size:9px;color:#4b5563;">Lengua originaria</div>
+          </div>
+          <div style="font-size:20px;color:#374151;">⇄</div>
+          <div style="text-align:center;padding:10px 20px;background:rgba(8,145,178,0.08);border:1.5px solid rgba(8,145,178,0.3);border-radius:12px;">
+            <div style="font-size:22px;">🏔️</div>
+            <div style="font-size:11px;font-weight:700;color:#67e8f9;margin-top:4px;">Aymara</div>
+            <div style="font-size:9px;color:#4b5563;">Lengua originaria</div>
+          </div>
+          <div style="font-size:9px;color:#4b5563;max-width:140px;text-align:center;line-height:1.5;">Todos los textos de la interfaz se traducen en tiempo real vía objeto TR{}</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="height:28px;display:flex;flex-direction:column;align-items:center;">
+      <div class="v-conn" style="flex:1;"></div>
+      <div class="v-arrow-head"></div>
+    </div>
+
+    <!-- ══ 7. CHAT FLOTANTE ══ -->
+    <div style="width:100%;max-width:540px;position:relative;">
+      <div class="step-num">7</div>
+      <div class="node" style="width:100%;background:rgba(124,58,237,0.1);border:1.5px solid rgba(124,58,237,0.35);color:#c4b5fd;padding:14px 20px;">
+        <div class="icon">🌸</div>
+        <div class="label">Widget Chat Flotante — Warmi</div>
+        <div class="sublabel">Disponible en todas las pantallas · Toggle · Accesos rápidos</div>
+      </div>
+    </div>
+
+    <div style="height:28px;display:flex;flex-direction:column;align-items:center;">
+      <div class="v-conn" style="flex:1;"></div>
+      <div class="v-arrow-head"></div>
+    </div>
+
+    <!-- ══ END ══ -->
+    <div class="node node-end" style="position:relative;">
+      <div class="icon">💜</div>
+      <div class="label">Paciente acompañada en su proceso</div>
+      <div class="sublabel">Siguiente paso confirmado · Viaje optimizado</div>
+    </div>
+
+  </div><!-- /flow-col -->
+
+  <!-- LEGEND -->
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="background:#6366f1;"></div>Módulo / Página principal</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#ec4899;"></div>Ruta Psicológica (nuevo)</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#ea580c;"></div>Manejo del Dolor (nuevo)</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#f59e0b;"></div>Motor Claude API (IA)</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#0891b2;"></div>WhatsApp / WarmiVoz</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#10b981;"></div>Paso completado / Alta</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#8b5cf6;border-radius:50%;"></div>Modo Cuidador / Idioma</div>
+  </div>
+
+  <!-- FOOTER -->
+  <div style="text-align:center;margin-top:28px;font-size:11px;color:#374151;">
+    <strong style="color:#7c3aed;">OncoWarmi 360</strong> · Diagrama de Actividades del Index(4) · Hackathon Transformagob 2026 · INEN Lima · Equipo Yura Toledo
+  </div>
+
+</div>
+</body>
+</html>
